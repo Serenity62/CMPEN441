@@ -21,11 +21,12 @@ struct Workspace{
 };
 
 struct Shared{
-  int condition_runner;
+  int condition_t;
   int goal_t;
   int eliminated_t[3]
   int cycle_t;
-  int carrot_t[4];
+  int carrot_t[2][2];
+  int mtn_t[2];
   char winner_t[6];
   struct Workspace *map;
 }shared_t;
@@ -100,6 +101,14 @@ void init_pos(thread_data *thread){
       thread[i]->x = pos[i][0];
       thread[i]->y = pos[i][1];
     }
+    else if(i < 6){
+      shared_t.carrot_t[i - 4][0] = pos[i][0];
+      shared_t.carrot_t[i - 4][1] = pos[i][0];
+    }
+    else{
+      shared_t.mtn_t[0] = pos[i][0];
+      shared_t.mtn_t[1] = pos[i][0];
+    }
     shared_t.map->pos[pos[i][0]][pos[i][1]] = c[i];
   }
 }
@@ -116,12 +125,12 @@ void create_map(){
   }
 }
 
-
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 void runner_signal(thread_data *runner){
   // Lock it down
   pthread_mutex_lock(&timeTravel_signal_mutex);
   // check if it's allowed to run
-  if(shared_t.condition_runner == runner->condition){
+  if(shared_t.condition_t == runner->condition){
     // Check if Marvin
     if(runner->id == 3){
       // Check if cycle % 3
@@ -141,7 +150,10 @@ void runner_signal(thread_data *runner){
     }
     // Check if won
     // Update cycle
-    runner
+    shared_t.cycle_t++;
+    // Update condition
+    if(shared_t.condition_t < 3){shared_t.condition_t;}
+    else{shared_t.condition_t = 0;}
 
   }
   pthread_mutex_unlock(&timeTravel_signal_mutex);
@@ -159,7 +171,7 @@ void init_data(thread_data *thread){
   // Initialize thread data
   thread[0].thread_num = 0;
   thread[0].id = 0;
-  thread[0].condition;
+  thread[0].condition = 3;
   //thread[0].x;
   //thread[0].y;
   thread[0].copy_goal = 0;
@@ -169,7 +181,7 @@ void init_data(thread_data *thread){
 
   thread[1].thread_num = 1;
   thread[1].id = 0;
-  thread[1].condition;
+  thread[1].condition = 0;
   //thread[1].x;
   //thread[1].y;
   thread[1].copy_goal = 0;
@@ -179,7 +191,7 @@ void init_data(thread_data *thread){
 
   thread[2].thread_num = 2;
   thread[2].id = 0;
-  thread[2].condition;
+  thread[2].condition = 1;
   //thread[2].x;
   //thread[2].y;
   thread[2].copy_goal = 0;
@@ -189,7 +201,7 @@ void init_data(thread_data *thread){
 
   thread[3].thread_num = 3;
   thread[3].id = 0;
-  thread[3].condition;
+  thread[3].condition = 2;
   //thread[3].x;
   //thread[3].y;
   thread[3].copy_goal = 0;
