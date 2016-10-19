@@ -9,7 +9,7 @@
 // Structs
 typedef struct thread{
   pthread_t thread_id;
-  int thread_num, id;
+  int id;
   int condition, x, y, copy_goal, copy_cycle;
   char name[6], letter;
   
@@ -40,7 +40,7 @@ void *run_API(void *thread);
 void runner_signal(thread_data *runner);
 void init_data(thread_data *thread);
 void print_map();
-bool valid_move(thread_data *runner);
+bool valid_move(thread_data *runner, int x, int y);
 void rand_pos(int *x, int *y);
 void move_mtn();
 void init_pos(thread_data *thread);
@@ -72,7 +72,7 @@ void print_map(){
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-bool valid_move(thread_data *runner){
+bool valid_move(thread_data *runner, int x, int y){
 
 }
 
@@ -131,6 +131,7 @@ void runner_signal(thread_data *runner){
   pthread_mutex_lock(&timeTravel_signal_mutex);
   // check if it's allowed to run
   if(shared_t.condition_t == runner->condition){
+    int x, y;
     // Check if Marvin
     if(runner->id == 3){
       // Check if cycle % 3
@@ -144,11 +145,16 @@ void runner_signal(thread_data *runner){
     // Not Marvin
     else{
       // Check if terminated
-
-        // Move
-
+      if(shared_t.eliminated[runner->id] = 0){
+        do{
+          // Move
+          x = getRandom(0, 2) - 1;
+          y = getRandom(0, 2) - 1;
+        while(valid_move(runner, x, y);
+      }
     }
     // Check if won
+    
     // Update cycle
     shared_t.cycle_t++;
     // Update condition
@@ -169,7 +175,7 @@ void init_data(thread_data *thread){
   shared_t.carrot_t[0] = shared_t.carrot_t[1] = shared_t.carrot_t[2] = shared_t.carrot_t[3] = 0;
 
   // Initialize thread data
-  thread[0].thread_num = 0;
+  thread[0].thread_id = 0;
   thread[0].id = 0;
   thread[0].condition = 3;
   //thread[0].x;
@@ -179,7 +185,7 @@ void init_data(thread_data *thread){
   thread[0].name = "Bunny";
   thread[0].letter = 'B';
 
-  thread[1].thread_num = 1;
+  thread[1].thread_id = 1;
   thread[1].id = 0;
   thread[1].condition = 0;
   //thread[1].x;
@@ -189,7 +195,7 @@ void init_data(thread_data *thread){
   thread[1].name = "Taz";
   thread[1].letter = 'D';
 
-  thread[2].thread_num = 2;
+  thread[2].thread_id = 2;
   thread[2].id = 0;
   thread[2].condition = 1;
   //thread[2].x;
@@ -199,7 +205,7 @@ void init_data(thread_data *thread){
   thread[2].name = "Tweety";
   thread[2].letter = 'T';
 
-  thread[3].thread_num = 3;
+  thread[3].thread_id = 3;
   thread[3].id = 0;
   thread[3].condition = 2;
   //thread[3].x;
@@ -209,6 +215,8 @@ void init_data(thread_data *thread){
   thread[3].name = "Marvin";
   thread[3].letter = 'M';
 
+  // initialize time seed and random position
+  setup_time_seed();
   init_pos(thread);
 
 }
