@@ -84,7 +84,7 @@ void rand_pos(int *x, int *y){
 }
 
 void init_pos(thread_data *thread){
-  int pos[7][2], x, y;
+  int pos[7][2];
   char c[7] = {'B', 'D', 'T', 'M', 'C', 'C', 'F'};
   bool taken;
   for(int i = 0; i < 7; i++){
@@ -99,7 +99,8 @@ void init_pos(thread_data *thread){
     if(i < 4){
       thread[i]->x = pos[i][0];
       thread[i]->y = pos[i][1];
-    shared_t.map->pos[thread[i]->x][thread[i]->y] = thread[i]->
+    }
+    shared_t.map->pos[pos[i][0]][pos[i][1]] = c[i];
   }
 }
 
@@ -126,7 +127,7 @@ void runner_signal(thread_data *runner){
       // Check if cycle % 3
       if(shared_t.cycle_t % 3 && shared_t.cycle_t != 0){
         // Move Mountain
-
+        move_mtn();
       }
       // Move Marvin / Eliminate the competition (with or without the carrot)
 
@@ -140,9 +141,10 @@ void runner_signal(thread_data *runner){
     }
     // Check if won
     // Update cycle
+    runner
 
   }
-  pthrad_mutex_unlock(&timeTravel_signal_mutex);
+  pthread_mutex_unlock(&timeTravel_signal_mutex);
 }
 
 void init_data(thread_data *thread){
