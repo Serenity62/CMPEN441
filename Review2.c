@@ -40,7 +40,8 @@ void *run_API(void *thread);
 void runner_signal(thread_data *runner);
 void init_data(thread_data *thread);
 void print_map();
-bool valid_move(thread_data *runner, int x, int y);
+bool valid_move(char c, int x, int y);
+void update_pos(char c, int xn, int yn, int &xo, int &yo);
 void rand_pos(int *x, int *y);
 void move_mtn();
 void init_pos(thread_data *thread);
@@ -72,7 +73,12 @@ void print_map(){
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-bool valid_move(thread_data *runner, int x, int y){
+bool valid_move(char c, int x, int y){
+
+}
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void update_pos(char c, int xn, int yn, int &xo, int &yo){
 
 }
 
@@ -103,11 +109,11 @@ void init_pos(thread_data *thread){
     }
     else if(i < 6){
       shared_t.carrot_t[i - 4][0] = pos[i][0];
-      shared_t.carrot_t[i - 4][1] = pos[i][0];
+      shared_t.carrot_t[i - 4][1] = pos[i][1];
     }
     else{
       shared_t.mtn_t[0] = pos[i][0];
-      shared_t.mtn_t[1] = pos[i][0];
+      shared_t.mtn_t[1] = pos[i][1];
     }
     shared_t.map->pos[pos[i][0]][pos[i][1]] = c[i];
   }
@@ -140,7 +146,12 @@ void runner_signal(thread_data *runner){
         move_mtn();
       }
       // Move Marvin / Eliminate the competition (with or without the carrot)
-
+      do{
+      // Move
+        x = getRandom(0, 2) - 1;
+        y = getRandom(0, 2) - 1;
+      }while(!valid_move(runner->letter, x, y);
+      update_pos(runner->letter, x, y, &runner->x, &runner->y);
     }
     // Not Marvin
     else{
@@ -150,10 +161,11 @@ void runner_signal(thread_data *runner){
           // Move
           x = getRandom(0, 2) - 1;
           y = getRandom(0, 2) - 1;
-        while(valid_move(runner, x, y);
+        }while(!valid_move(runner->letter, x, y);
+        update_pos(runner->letter, x, y, &runner->x, &runner->y);
       }
     }
-    // Check if won
+    // Check if won (This could be done in valid_move)
     
     // Update cycle
     shared_t.cycle_t++;
@@ -178,8 +190,6 @@ void init_data(thread_data *thread){
   thread[0].thread_id = 0;
   thread[0].id = 0;
   thread[0].condition = 3;
-  //thread[0].x;
-  //thread[0].y;
   thread[0].copy_goal = 0;
   thread[0].copy_cycle = 0;
   thread[0].name = "Bunny";
@@ -188,8 +198,6 @@ void init_data(thread_data *thread){
   thread[1].thread_id = 1;
   thread[1].id = 0;
   thread[1].condition = 0;
-  //thread[1].x;
-  //thread[1].y;
   thread[1].copy_goal = 0;
   thread[1].copy_cycle = 0;
   thread[1].name = "Taz";
@@ -198,8 +206,6 @@ void init_data(thread_data *thread){
   thread[2].thread_id = 2;
   thread[2].id = 0;
   thread[2].condition = 1;
-  //thread[2].x;
-  //thread[2].y;
   thread[2].copy_goal = 0;
   thread[2].copy_cycle = 0;
   thread[2].name = "Tweety";
@@ -208,8 +214,6 @@ void init_data(thread_data *thread){
   thread[3].thread_id = 3;
   thread[3].id = 0;
   thread[3].condition = 2;
-  //thread[3].x;
-  //thread[3].y;
   thread[3].copy_goal = 0;
   thread[3].copy_cycle = 0;
   thread[3].name = "Marvin";
