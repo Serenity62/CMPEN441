@@ -12,7 +12,7 @@ typedef struct thread{
   int id;
   int condition, x, y, copy_goal, copy_cycle;
   int carrot;
-  char name[6], letter;
+  char name[7], letter;
   
 } thread_data;
 
@@ -24,7 +24,7 @@ struct Shared{
   int carrot_t[2][2];
   int carrot_holder_t[2];
   int mtn_t[2];
-  char winner_t[6];  
+  char winner_t[7];  
   char map[5][5];
 }shared_t;
 
@@ -65,7 +65,7 @@ int getRandom(int rangeLow, int rangeHigh) {
 void print_map(){
   int i, j, k, person, carrots;
   for(i = 0; i < 5; i++){
-    printf("\n--------------------------------\n|");
+    printf("\n--------------------------\n|");
     for(j = 0; j < 5; j++){
       printf("%c", shared_t.map[i][j]);
       person = check_person(i, j);
@@ -82,7 +82,7 @@ void print_map(){
       printf("|");
     }
   }
-  printf("\n--------------------------------\n");
+  printf("\n--------------------------\n");
 }
 
 bool valid_move(char c, int x, int y){
@@ -188,6 +188,7 @@ void init_pos(thread_data *thread){
 
 void move_mtn(){
   int x, y, moved = 0;
+  printf("Moving MTN\n");
   do{
     x = getRandom(0, 4);
     y = getRandom(0, 4);
@@ -222,8 +223,8 @@ void runner_signal(thread_data *runner){
 
     // Check if Marvin
     if(runner->id == 3){
-      // Check if cycle % 3
-      if(shared_t.cycle_t % 3 && shared_t.cycle_t != 0){
+      // Check if cycle % 12
+      if(shared_t.cycle_t % 12 && shared_t.cycle_t != 0){
         // Move Mountain
         move_mtn();
       }
@@ -261,7 +262,7 @@ void runner_signal(thread_data *runner){
     // Update cycle
     shared_t.cycle_t++;
     // Update condition
-    if(shared_t.condition_t < 3){shared_t.condition_t;}
+    if(shared_t.condition_t < 3){shared_t.condition_t++;}
     else{shared_t.condition_t = 0;}
     printf("\n");
     print_map();
@@ -293,7 +294,7 @@ void init_data(thread_data *thread){
   thread[0].y = 0;
 
   thread[1].thread_id = 1;
-  thread[1].id = 0;
+  thread[1].id = 1;
   thread[1].condition = 0;
   thread[1].copy_goal = 0;
   thread[1].copy_cycle = 0;
@@ -304,7 +305,7 @@ void init_data(thread_data *thread){
   thread[1].y = 0;
 
   thread[2].thread_id = 2;
-  thread[2].id = 0;
+  thread[2].id = 2;
   thread[2].condition = 1;
   thread[2].copy_goal = 0;
   thread[2].copy_cycle = 0;
@@ -315,7 +316,7 @@ void init_data(thread_data *thread){
   thread[2].y = 0;
 
   thread[3].thread_id = 3;
-  thread[3].id = 0;
+  thread[3].id = 3;
   thread[3].condition = 2;
   thread[3].copy_goal = 0;
   thread[3].copy_cycle = 0;
@@ -329,7 +330,7 @@ void init_data(thread_data *thread){
   // initialize time seed and random position
   setup_time_seed();
   init_pos(thread);
-
+  print_map();
 }
 
 
