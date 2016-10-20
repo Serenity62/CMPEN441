@@ -77,7 +77,7 @@ void print_map(){
       }
       if(carrots == 2){printf("%s", "(K)");}
       else if(carrots == 1){printf("%s", "(C)");}
-      else{printf("   ")};
+      else{printf("   ");}
       printf("|");
     }
   }
