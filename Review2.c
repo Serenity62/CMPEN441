@@ -40,7 +40,7 @@ void print_map();
 bool valid_move(char c, int x, int y);
 void check_pos(thread_data *runner, int x, int y);
 int check_person(int x, int y);
-void update_pos(char c, int xn, int yn, int &xo, int &yo);
+void update_pos(char c, int xn, int yn, int *xo, int *yo);
 void rand_pos(int *x, int *y);
 void move_mtn();
 void init_pos(thread_data *thread);
@@ -95,11 +95,11 @@ bool valid_move(char c, int x, int y){
   // not jumping off the map
   if(x < 0 || x > 4 || y < 0 || y > 4){valid = false;}
   // check if mtn is in the way / have the one ring
-  else if(shared_t.map[x][y] == 'F' && !(shared_t.carrot_holder_t[0] == person || shared_t.carrot_holder_t[1] == person)
+  else if(shared_t.map[x][y] == 'F' && !(shared_t.carrot_holder_t[0] == person || shared_t.carrot_holder_t[1] == person))
   {valid = false;}
   // check if bumping into other competition / if marvin
-  else if(shared_t.map[x][y] != person && shared_t.map[x][y] != ' ')
-  {valid = fasle;}
+  else if(shared_t.map[x][y] != 'C' && shared_t.map[x][y] != ' ' && person != 3)
+  {valid = false;}
 
   return valid;
 }
@@ -111,9 +111,9 @@ void check_pos(thread_data *runner, int x, int y){
     // check if moving on a person
     int person = check_person(x, y);
     if(person != -1){
-      shared_t.eliminate_t[peson]++;
-      if(shared_t.carrot_holder[0] == person){runner->carrot++;shared_t.carrot_holder_t[0] = runner->id;}
-      else if(shared_t.carrot_holder[1] == person){runner->carrot++;shared_t.carrot_holder_t[1] = runner->id;}
+      shared_t.eliminated_t[person]++;
+      if(shared_t.carrot_holder_t[0] == person){runner->carrot++;shared_t.carrot_holder_t[0] = runner->id;}
+      else if(shared_t.carrot_holder_t[1] == person){runner->carrot++;shared_t.carrot_holder_t[1] = runner->id;}
     }
   }
   // check for carrot
@@ -132,18 +132,18 @@ int check_person(int x, int y){
   if(person == 'B'){id = 0;}
   else if(person == 'D'){id = 1;}
   else if(person == 'T'){id = 2;}
-  else{id = -1}
+  else{id = -1;}
   return id;
 }
 
-void update_pos(char c, int xn, int yn, int &xo, int &yo){
+void update_pos(char c, int xn, int yn, int *xo, int *yo){
   // replace old spot with ' '
   shared_t.map[xo][yo] = ' ';
   // replace new spot with c
   shared_t.map[xn][yn] = c;
   // old pos = new pos
-  xo = xn;
-  yo = yn;
+  *xo = xn;
+  *yo = yn;
 }
 
 void rand_pos(int *x, int *y){
@@ -164,13 +164,13 @@ void init_pos(thread_data *thread){
       pos[i][0] = getRandom(0, 4);
       pos[i][1] = getRandom(0, 4);
       for(int j = 0; j < i; j++){
-        if(pos[i][0] == pos[j][0] && pos[i][1] == pos[j][1];
+        if(pos[i][0] == pos[j][0] && pos[i][1] == pos[j][1])
           taken = true;
       }
     }while(taken);
     if(i < 4){
-      thread[i]->x = pos[i][0];
-      thread[i]->y = pos[i][1];
+      thread[i].x = pos[i][0];
+      thread[i].y = pos[i][1];
     }
     else if(i < 6){
       shared_t.carrot_t[i - 4][0] = pos[i][0];
@@ -228,7 +228,7 @@ void runner_signal(thread_data *runner){
       }while(!valid_move(runner->letter, x, y);
       // check if carrot or competition to take/takedown
       check_pos(runner, x, y);
-      update_pos(runner->letter, x, y, &runner->x, &runner->y);
+      update_pos(runner->letter, x, y, runner->x, runner->y);
     }
     // Not Marvin
     else{
@@ -239,7 +239,7 @@ void runner_signal(thread_data *runner){
           x = getRandom(0, 2) - 1;
           y = getRandom(0, 2) - 1;
         }while(!valid_move(runner->letter, x, y);
-        update_pos(runner->letter, x, y, &runner->x, &runner->y);
+        update_pos(runner->letter, x, y, runner->x, runner->y);
         // check for carrot to take
       }
     }
