@@ -91,7 +91,9 @@ void print_map(){
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 bool valid_move(char c, int x, int y){
-  
+  // check if mtn is in the way / have the one ring
+  // check if bumping into other competition / if marvin
+  // not jumping off the map
 }
 
 void check_pos(thread_data *runner, int x, int y){
@@ -106,16 +108,14 @@ void check_pos(thread_data *runner, int x, int y){
       else if(shared-t.carrot_holder[1] == person){runner->carrot++;shared_t.carrot_holder_t[1] = runner->id;}
     }
   }
-
   // check for carrot
-  for(i = 0; i < 2; i++)}
+  for(i = 0; i < 2; i++){
     if(shared_t.carrot_t[i][0] == x && shared_t.carrot_t[i][1] == y){
         // pickup carrot
 	shared_t.carrot_holder_t[i] = runner->id;
         runner->carrot++;
     }
   }
-
 }
 
 int check_person(int x, int y){
@@ -176,7 +176,16 @@ void init_pos(thread_data *thread){
 }
 
 void move_mtn(){
-
+int x, y;
+do{
+  x = getRandom(0, 4);
+  y = getRandom(0, 4);
+  if(shared_t.map.pos[x][y] == ' '){
+    shared_t.map.pos[shared_t.mtn_t[0]][shared_t.mtn_t[1]] = ' ';
+    shared_t.map.pos[x][y] == 'F';
+    shared_t.mtn_t[0] = x;
+    shared_t.mtn_t[1] = y;
+  }
 }
 
 void create_map(){
@@ -203,8 +212,8 @@ void runner_signal(thread_data *runner){
       // Move Marvin / Eliminate the competition (with or without the carrot)
       do{
         // Move
-        x = getRandom(0, 2) - 1;
-        y = getRandom(0, 2) - 1;
+        x = getRandom(0, 2) - 1 + runner->x;
+        y = getRandom(0, 2) - 1 + runner->y;
       }while(!valid_move(runner->letter, x, y);
       // check if carrot or competition to take/takedown
       check_pos(runner, x, y);
