@@ -16,11 +16,6 @@ typedef struct thread{
   
 } thread_data;
 
-struct Workspace{
-  
-  char pos[5][5];
-};
-
 struct Shared{
   int condition_t;
   int goal_t;
@@ -29,8 +24,8 @@ struct Shared{
   int carrot_t[2][2];
   int carrot_holder_t[2];
   int mtn_t[2];
-  char winner_t[6];
-  struct Workspace *map;
+  char winner_t[6];  
+  char map[5][5];
 }shared_t;
 
 pthread_mutex_t timeTravel_signal_mutex;
@@ -71,7 +66,7 @@ void print_map(){
   for(i = 0; i < 5; i++){
     printf("\n-------------------------------------\n|");
     for(j = 0; j < 5; j++){
-      printf("%s", shared_t.map.pos[i][j]);
+      printf("%s", shared_t.map[i][j]);
       person = check_person(i, j);
       if(person != -1){
         carrots = 0;
@@ -91,7 +86,7 @@ void print_map(){
 bool valid_move(char c, int x, int y){
   bool valid = true;
   int person, i;
-  char letter = {'B', 'D', 'T', 'M'};
+  char letter[] = {'B', 'D', 'T', 'M'};
   for(i = 0; i < 4; i++){
     if(c == letter[i]){
       person = i;
@@ -100,10 +95,10 @@ bool valid_move(char c, int x, int y){
   // not jumping off the map
   if(x < 0 || x > 4 || y < 0 || y > 4){valid = false;}
   // check if mtn is in the way / have the one ring
-  else if(shared_t.map.pos[x][y] == 'F' && !(shared_t.carrot_holder_t[0] == person || shared_t.carrot_holder_t[1] == person)
+  else if(shared_t.map[x][y] == 'F' && !(shared_t.carrot_holder_t[0] == person || shared_t.carrot_holder_t[1] == person)
   {valid = false;}
   // check if bumping into other competition / if marvin
-  else if(shared_t.map.pos[x][y] != person && shared_t.map.pos[x][y] != ' ')
+  else if(shared_t.map[x][y] != person && shared_t.map[x][y] != ' ')
   {valid = fasle;}
 
   return valid;
@@ -118,7 +113,7 @@ void check_pos(thread_data *runner, int x, int y){
     if(person != -1){
       shared_t.eliminate_t[peson]++;
       if(shared_t.carrot_holder[0] == person){runner->carrot++;shared_t.carrot_holder_t[0] = runner->id;}
-      else if(shared-t.carrot_holder[1] == person){runner->carrot++;shared_t.carrot_holder_t[1] = runner->id;}
+      else if(shared_t.carrot_holder[1] == person){runner->carrot++;shared_t.carrot_holder_t[1] = runner->id;}
     }
   }
   // check for carrot
@@ -133,7 +128,7 @@ void check_pos(thread_data *runner, int x, int y){
 
 int check_person(int x, int y){
   int id;
-  char person = shared_t.map.pos[x][y];
+  char person = shared_t.map[x][y];
   if(person == 'B'){id = 0;}
   else if(person == 'D'){id = 1;}
   else if(person == 'T'){id = 2;}
@@ -143,9 +138,9 @@ int check_person(int x, int y){
 
 void update_pos(char c, int xn, int yn, int &xo, int &yo){
   // replace old spot with ' '
-  shared_t.map.pos[xo][yo] = ' ';
+  shared_t.map[xo][yo] = ' ';
   // replace new spot with c
-  shared_t.map.pos[xn][yn] = c;
+  shared_t.map[xn][yn] = c;
   // old pos = new pos
   xo = xn;
   yo = yn;
@@ -166,7 +161,8 @@ void init_pos(thread_data *thread){
   for(int i = 0; i < 7; i++){
     do{
       taken = false;
-      rand_pos(&pos[i][0], &pos[i][1]);
+      pos[i][0] = getRandom(0, 4);
+      pos[i][1] = getRandom(0, 4);
       for(int j = 0; j < i; j++){
         if(pos[i][0] == pos[j][0] && pos[i][1] == pos[j][1];
           taken = true;
@@ -184,7 +180,7 @@ void init_pos(thread_data *thread){
       shared_t.mtn_t[0] = pos[i][0];
       shared_t.mtn_t[1] = pos[i][1];
     }
-    shared_t.map->pos[pos[i][0]][pos[i][1]] = c[i];
+    shared_t.map[pos[i][0]][pos[i][1]] = c[i];
   }
 }
 
@@ -193,9 +189,9 @@ void move_mtn(){
   do{
     x = getRandom(0, 4);
     y = getRandom(0, 4);
-    if(shared_t.map.pos[x][y] == ' '){
-      shared_t.map.pos[shared_t.mtn_t[0]][shared_t.mtn_t[1]] = ' ';
-      shared_t.map.pos[x][y] == 'F';
+    if(shared_t.map[x][y] == ' '){
+      shared_t.map[shared_t.mtn_t[0]][shared_t.mtn_t[1]] = ' ';
+      shared_t.map[x][y] == 'F';
       shared_t.mtn_t[0] = x;
       shared_t.mtn_t[1] = y;
       moved = 1;
