@@ -63,14 +63,14 @@ int getRandom(int rangeLow, int rangeHigh) {
 } // end getRandom()
 
 void print_map(){
-  int i, j, k, person, carrots;
+  int i, j, k, person, carrots = 0;
   for(i = 0; i < 5; i++){
     printf("\n--------------------------\n|");
     for(j = 0; j < 5; j++){
+      carrots = 0;
       printf("%c", shared_t.map[i][j]);
       person = check_person(i, j);
       if(person != -1){
-        carrots = 0;
         for(k = 0; k < 2; k++){
           if(shared_t.carrot_holder_t[k] == person)
             carrots++;
@@ -124,6 +124,8 @@ void check_pos(thread_data *runner, int x, int y){
         // pickup carrot
 	shared_t.carrot_holder_t[i] = runner->id;
         runner->carrot++;
+        shared_t.carrot_t[i][0] = -1;
+        shared_t.carrot_t[i][1] = -1;
     }
   }
 }
@@ -134,6 +136,7 @@ int check_person(int x, int y){
   if(person == 'B'){id = 0;}
   else if(person == 'D'){id = 1;}
   else if(person == 'T'){id = 2;}
+  else if(person == 'M'){id = 3;}
   else{id = -1;}
   return id;
 }
@@ -153,19 +156,19 @@ void rand_pos(int *x, int *y){
   do{
     *x = getRandom(0, 2) - 1;
     *y = getRandom(0, 2) - 1;
-  }while((*y == 0) && (*x == 1));
+  }while((*y == 0) && (*x == 0));
 }
 
 void init_pos(thread_data *thread){
-  int pos[7][2];
+  int pos[7][2], i, j;
   char c[7] = {'B', 'D', 'T', 'M', 'C', 'C', 'F'};
   bool taken;
-  for(int i = 0; i < 7; i++){
+  for(i = 0; i < 7; i++){
     do{
       taken = false;
       pos[i][0] = getRandom(0, 4);
       pos[i][1] = getRandom(0, 4);
-      for(int j = 0; j < i; j++){
+      for(j = 0; j < i; j++){
         if(pos[i][0] == pos[j][0] && pos[i][1] == pos[j][1])
           taken = true;
       }
@@ -194,7 +197,7 @@ void move_mtn(){
     y = getRandom(0, 4);
     if(shared_t.map[x][y] == ' '){
       shared_t.map[shared_t.mtn_t[0]][shared_t.mtn_t[1]] = ' ';
-      shared_t.map[x][y] == 'F';
+      shared_t.map[x][y] = 'F';
       shared_t.mtn_t[0] = x;
       shared_t.mtn_t[1] = y;
       moved = 1;
@@ -218,13 +221,12 @@ void runner_signal(thread_data *runner){
     int x, y;
     // Print cycle
     printf("Cycle: %d\n",shared_t.cycle_t);
-    // Print runner name
-    printf("%s is moving.\n", runner->name);
-
     // Check if Marvin
     if(runner->id == 3){
+      // Print runner name
+      printf("%s is moving.\n", runner->name);
       // Check if cycle % 12
-      if(shared_t.cycle_t % 12 && shared_t.cycle_t != 0){
+      if(shared_t.cycle_t % 12 == 0){
         // Move Mountain
         move_mtn();
       }
@@ -237,18 +239,27 @@ void runner_signal(thread_data *runner){
       // check if carrot or competition to take/takedown
       check_pos(runner, x, y);
       update_pos(runner->letter, x, y, &runner->x, &runner->y);
+      
+      printf("\n");
+      print_map();
     }
     // Not Marvin
     else{
       // Check if terminated
       if(shared_t.eliminated_t[runner->id] == 0){
+        // Print runner name
+        printf("%s is moving.\n", runner->name);
         do{
           // Move
-          x = getRandom(0, 2) - 1;
-          y = getRandom(0, 2) - 1;
+          x = getRandom(0, 2) - 1 + runner->x;
+          y = getRandom(0, 2) - 1 + runner->y;
         }while(!valid_move(runner->letter, x, y));
         update_pos(runner->letter, x, y, &runner->x, &runner->y);
         // check for carrot to take
+        check_pos(runner, x, y);
+
+        printf("\n");
+        print_map();
       }
     }
     // Check if won
@@ -262,10 +273,8 @@ void runner_signal(thread_data *runner){
     // Update cycle
     shared_t.cycle_t++;
     // Update condition
-    if(shared_t.condition_t < 3){shared_t.condition_t++;}
-    else{shared_t.condition_t = 0;}
-    printf("\n");
-    print_map();
+    shared_t.condition_t = runner->id;
+
   }
   pthread_mutex_unlock(&timeTravel_signal_mutex);
 }
@@ -320,7 +329,7 @@ void init_data(thread_data *thread){
   thread[3].condition = 2;
   thread[3].copy_goal = 0;
   thread[3].copy_cycle = 0;
-  strcpy(thread[2].name, "Marvin");
+  strcpy(thread[3].name, "Marvin");
   thread[3].letter = 'M';
   thread[3].carrot = 0;
   thread[3].x = 0;
@@ -367,8 +376,8 @@ int main(int argc, char *argv[]){
   }
 
   pthread_mutex_destroy(&timeTravel_signal_mutex);
-  printf("Threads destroyed");
+  printf("Threads destroyed\n");
   // Print out winner
-  printf("The winner is %s", shared_t.winner_t);
+  printf("The winner is %s\n\n", shared_t.winner_t);
   return 0;
 }
