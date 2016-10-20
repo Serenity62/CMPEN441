@@ -11,6 +11,7 @@ typedef struct thread{
   pthread_t thread_id;
   int id;
   int condition, x, y, copy_goal, copy_cycle;
+  int carrot;
   char name[6], letter;
   
 } thread_data;
@@ -23,9 +24,10 @@ struct Workspace{
 struct Shared{
   int condition_t;
   int goal_t;
-  int eliminated_t[3]
+  int eliminated_t[3];
   int cycle_t;
   int carrot_t[2][2];
+  int carrot_holder_t[2];
   int mtn_t[2];
   char winner_t[6];
   struct Workspace *map;
@@ -79,7 +81,13 @@ bool valid_move(char c, int x, int y){
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void update_pos(char c, int xn, int yn, int &xo, int &yo){
-
+  // replace old spot with ' '
+  shared_t.map.pos[xo][yo] = ' ';
+  // replace new spot with c
+  shared_t.map.pos[xn][yn] = c;
+  // old pos = new pos
+  xo = xn;
+  yo = yo;
 }
 
 void rand_pos(int *x, int *y){
@@ -131,7 +139,6 @@ void create_map(){
   }
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 void runner_signal(thread_data *runner){
   // Lock it down
   pthread_mutex_lock(&timeTravel_signal_mutex);
@@ -147,11 +154,12 @@ void runner_signal(thread_data *runner){
       }
       // Move Marvin / Eliminate the competition (with or without the carrot)
       do{
-      // Move
+        // Move
         x = getRandom(0, 2) - 1;
         y = getRandom(0, 2) - 1;
       }while(!valid_move(runner->letter, x, y);
       update_pos(runner->letter, x, y, &runner->x, &runner->y);
+      // check if carrot or competition to take/takedown
     }
     // Not Marvin
     else{
@@ -163,10 +171,17 @@ void runner_signal(thread_data *runner){
           y = getRandom(0, 2) - 1;
         }while(!valid_move(runner->letter, x, y);
         update_pos(runner->letter, x, y, &runner->x, &runner->y);
+        // check for carrot to take
       }
     }
-    // Check if won (This could be done in valid_move)
-    
+    // Check if won
+    if(runner->x == shared_t.mtn_t[0] && runner->y == shared_t.mtn[1] && runner->carrot > 0){
+      shared_t.goal_t = 1;
+      shared_t.winner_t = runner->name;
+    }
+
+    // Update goal
+    runner->copy_goal = shared_t.goal_t;
     // Update cycle
     shared_t.cycle_t++;
     // Update condition
@@ -185,6 +200,7 @@ void init_data(thread_data *thread){
   shared_t.eliminated_t[0] = shared_t.elimiated_t[1] = shared_t.eliminated_t[2] = 0;
   shared_t.cycle_t = 0;
   shared_t.carrot_t[0] = shared_t.carrot_t[1] = shared_t.carrot_t[2] = shared_t.carrot_t[3] = 0;
+  shared_t.carrot_holder_t[0] = shared_t.carrot_holder_t[1] = -1;
 
   // Initialize thread data
   thread[0].thread_id = 0;
@@ -194,6 +210,7 @@ void init_data(thread_data *thread){
   thread[0].copy_cycle = 0;
   thread[0].name = "Bunny";
   thread[0].letter = 'B';
+  thread[0].carrot = 0;
 
   thread[1].thread_id = 1;
   thread[1].id = 0;
@@ -202,6 +219,7 @@ void init_data(thread_data *thread){
   thread[1].copy_cycle = 0;
   thread[1].name = "Taz";
   thread[1].letter = 'D';
+  thread[1].carrot = 0;
 
   thread[2].thread_id = 2;
   thread[2].id = 0;
@@ -210,6 +228,7 @@ void init_data(thread_data *thread){
   thread[2].copy_cycle = 0;
   thread[2].name = "Tweety";
   thread[2].letter = 'T';
+  thread[2].carrot = 0;
 
   thread[3].thread_id = 3;
   thread[3].id = 0;
@@ -218,6 +237,7 @@ void init_data(thread_data *thread){
   thread[3].copy_cycle = 0;
   thread[3].name = "Marvin";
   thread[3].letter = 'M';
+  thread[3].carrot = 0;
 
   // initialize time seed and random position
   setup_time_seed();
@@ -231,7 +251,7 @@ void *run_API(void *thread){
   thread_data *runner = (thread_data)thread;
   setup_time_seed();
 
-  while(!runner->copy_goal_T){
+  while(!runner->copy_goal){
     runner_signal(runner);
     sleep(2);
   }
