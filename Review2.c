@@ -44,6 +44,7 @@ void init_data(thread_data *thread);
 void print_map();
 bool valid_move(char c, int x, int y);
 void check_pos(thread_data *runner, int x, int y);
+int check_perosn(int x, int y);
 void update_pos(char c, int xn, int yn, int &xo, int &yo);
 void rand_pos(int *x, int *y);
 void move_mtn();
@@ -82,21 +83,39 @@ bool valid_move(char c, int x, int y){
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void check_pos(thread_data *runner, int x, int y){
+  int i;
   // check if marvin
   if(runner->id == 3){
     // check if moving on a person
-    switch(shared_t.map.pos[x][y]){
-      case 'B': shared_t.eliminated_t[0]++;break;
-      case 'D': shared_t.eliminated_t[1]++;break;
-      case 'T': shared_t.eliminated_t[2]++;break;
-      default: break;
+    int person = check_person(x, y);
+    if(person != -1){
+      shared_t.eliminate_t[peson]++;
+      if(shared_t.carrot_holder[0] == person){runner->carrot++;shared_t.carrot_holder_t[0] = runner->id;}
+      else if(shared-t.carrot_holder[1] == person){runner->carrot++;shared_t.carrot_holder_t[1] = runner->id;}
     }
   }
 
 
   // check for carrot
+  for(i = 0; i < 2; i++)}
+    if(shared_t.carrot_t[i][0] == x && shared_t.carrot_t[i][1] == y){
+        // pickup carrot
+	shared_t.carrot_holder_t[i] = runner->id;
+        runner->carrot++;
+    }
+  }
 
-    // pickup carrot
+}
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+int check_perosn(int x, int y){
+  int id;
+  char person = shared_t.map.pos[x][y];
+  if(person == 'B'){id = 0;}
+  else if(person == 'D'){id = 1;}
+  else if(person == 'T'){id = 2;}
+  else{id = -1}
+  return id;
 }
 
 void update_pos(char c, int xn, int yn, int &xo, int &yo){
