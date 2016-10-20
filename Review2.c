@@ -346,7 +346,7 @@ int main(){
 
   for(i = 0; i < 4; i++){
     thread[i].thread_id = i;
-    phtread_crete(&(thread[i].thread_id), NULL, run_API, (void *)(&thread[i]));
+    phtread_create(&(thread[i].thread_id), NULL, run_API, (void *)(&thread[i]));
   }
 
   for(i = 0; i < 4; i++){
