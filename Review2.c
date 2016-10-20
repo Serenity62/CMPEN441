@@ -43,6 +43,7 @@ void runner_signal(thread_data *runner);
 void init_data(thread_data *thread);
 void print_map();
 bool valid_move(char c, int x, int y);
+void check_pos(thread_data *runner, int x, int y);
 void update_pos(char c, int xn, int yn, int &xo, int &yo);
 void rand_pos(int *x, int *y);
 void move_mtn();
@@ -76,10 +77,27 @@ void print_map(){
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 bool valid_move(char c, int x, int y){
-
+  
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void check_pos(thread_data *runner, int x, int y){
+  // check if marvin
+  if(runner->id == 3){
+    // check if moving on a person
+    switch(shared_t.map.pos[x][y]){
+      case 'B': shared_t.eliminated_t[0]++;break;
+      case 'D': shared_t.eliminated_t[1]++;break;
+      case 'T': shared_t.eliminated_t[2]++;break;
+    }
+  }
+
+
+  // check for carrot
+
+    // pickup carrot
+}
+
 void update_pos(char c, int xn, int yn, int &xo, int &yo){
   // replace old spot with ' '
   shared_t.map.pos[xo][yo] = ' ';
@@ -87,7 +105,7 @@ void update_pos(char c, int xn, int yn, int &xo, int &yo){
   shared_t.map.pos[xn][yn] = c;
   // old pos = new pos
   xo = xn;
-  yo = yo;
+  yo = yn;
 }
 
 void rand_pos(int *x, int *y){
@@ -158,13 +176,14 @@ void runner_signal(thread_data *runner){
         x = getRandom(0, 2) - 1;
         y = getRandom(0, 2) - 1;
       }while(!valid_move(runner->letter, x, y);
-      update_pos(runner->letter, x, y, &runner->x, &runner->y);
       // check if carrot or competition to take/takedown
+      check_pos(runner, x, y);
+      update_pos(runner->letter, x, y, &runner->x, &runner->y);
     }
     // Not Marvin
     else{
       // Check if terminated
-      if(shared_t.eliminated[runner->id] = 0){
+      if(shared_t.eliminated[runner->id] == 0){
         do{
           // Move
           x = getRandom(0, 2) - 1;
