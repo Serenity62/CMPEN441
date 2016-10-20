@@ -89,6 +89,7 @@ void check_pos(thread_data *runner, int x, int y){
       case 'B': shared_t.eliminated_t[0]++;break;
       case 'D': shared_t.eliminated_t[1]++;break;
       case 'T': shared_t.eliminated_t[2]++;break;
+      default: break;
     }
   }
 
