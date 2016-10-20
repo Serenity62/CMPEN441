@@ -246,7 +246,7 @@ void runner_signal(thread_data *runner){
     // Check if won
     if(runner->x == shared_t.mtn_t[0] && runner->y == shared_t.mtn_t[1] && runner->carrot > 0){
       shared_t.goal_t = 1;
-      strcopy(shared_t.winner_t, runner->name);
+      strcpy(shared_t.winner_t, runner->name);
     }
 
     // Print cycle
@@ -280,7 +280,7 @@ void init_data(thread_data *thread){
   thread[0].condition = 3;
   thread[0].copy_goal = 0;
   thread[0].copy_cycle = 0;
-  strcopy(thread[0].name, "Bunny");
+  strcpy(thread[0].name, "Bunny");
   thread[0].letter = 'B';
   thread[0].carrot = 0;
 
@@ -289,7 +289,7 @@ void init_data(thread_data *thread){
   thread[1].condition = 0;
   thread[1].copy_goal = 0;
   thread[1].copy_cycle = 0;
-  strcopy(thread[1].name, "Taz");
+  strcpy(thread[1].name, "Taz");
   thread[1].letter = 'D';
   thread[1].carrot = 0;
 
@@ -298,7 +298,7 @@ void init_data(thread_data *thread){
   thread[2].condition = 1;
   thread[2].copy_goal = 0;
   thread[2].copy_cycle = 0;
-  strcopy(thread[2].name, "Tweety");
+  strcpy(thread[2].name, "Tweety");
   thread[2].letter = 'T';
   thread[2].carrot = 0;
 
@@ -307,7 +307,7 @@ void init_data(thread_data *thread){
   thread[3].condition = 2;
   thread[3].copy_goal = 0;
   thread[3].copy_cycle = 0;
-  strcopy(thread[2].name, "Marvin");
+  strcpy(thread[2].name, "Marvin");
   thread[3].letter = 'M';
   thread[3].carrot = 0;
 
