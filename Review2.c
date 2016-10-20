@@ -66,9 +66,8 @@ int getRandom(int rangeLow, int rangeHigh) {
   return myRand_scaled;
 } // end getRandom()
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void print_map(){
-  int i, j, person, carrots;
+  int i, j, k, person, carrots;
   for(i = 0; i < 5; i++){
     printf("\n-------------------------------------\n|");
     for(j = 0; j < 5; j++){
@@ -89,11 +88,25 @@ void print_map(){
   }
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 bool valid_move(char c, int x, int y){
-  // check if mtn is in the way / have the one ring
-  // check if bumping into other competition / if marvin
+  bool valid = true;
+  int person, i;
+  char letter = {'B', 'D', 'T', 'M'};
+  for(i = 0; i < 4; i++){
+    if(c == letter[i]){
+      person = i;
+    }
+  }
   // not jumping off the map
+  if(x < 0 || x > 4 || y < 0 || y > 4){valid = false;}
+  // check if mtn is in the way / have the one ring
+  else if(shared_t.map.pos[x][y] == 'F' && !(shared_t.carrot_holder_t[0] == person || shared_t.carrot_holder_t[1] == person)
+  {valid = false;}
+  // check if bumping into other competition / if marvin
+  else if(shared_t.map.pos[x][y] != person && shared_t.map.pos[x][y] != ' ')
+  {valid = fasle;}
+
+  return valid;
 }
 
 void check_pos(thread_data *runner, int x, int y){
@@ -176,16 +189,18 @@ void init_pos(thread_data *thread){
 }
 
 void move_mtn(){
-int x, y;
-do{
-  x = getRandom(0, 4);
-  y = getRandom(0, 4);
-  if(shared_t.map.pos[x][y] == ' '){
-    shared_t.map.pos[shared_t.mtn_t[0]][shared_t.mtn_t[1]] = ' ';
-    shared_t.map.pos[x][y] == 'F';
-    shared_t.mtn_t[0] = x;
-    shared_t.mtn_t[1] = y;
-  }
+  int x, y, moved = 0;
+  do{
+    x = getRandom(0, 4);
+    y = getRandom(0, 4);
+    if(shared_t.map.pos[x][y] == ' '){
+      shared_t.map.pos[shared_t.mtn_t[0]][shared_t.mtn_t[1]] = ' ';
+      shared_t.map.pos[x][y] == 'F';
+      shared_t.mtn_t[0] = x;
+      shared_t.mtn_t[1] = y;
+      moved = 1;
+    }
+  }while(moved == 0);
 }
 
 void create_map(){
