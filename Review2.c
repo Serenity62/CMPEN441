@@ -44,7 +44,7 @@ void init_data(thread_data *thread);
 void print_map();
 bool valid_move(char c, int x, int y);
 void check_pos(thread_data *runner, int x, int y);
-int check_perosn(int x, int y);
+int check_person(int x, int y);
 void update_pos(char c, int xn, int yn, int &xo, int &yo);
 void rand_pos(int *x, int *y);
 void move_mtn();
@@ -68,10 +68,23 @@ int getRandom(int rangeLow, int rangeHigh) {
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void print_map(){
-  int i, j;
+  int i, j, person, carrots;
   for(i = 0; i < 5; i++){
+    printf("\n-------------------------------------\n|");
     for(j = 0; j < 5; j++){
-      
+      printf("%s", shared_t.map.pos[i][j]);
+      person = check_person(i, j);
+      if(person != -1){
+        carrots = 0;
+        for(k = 0; k < 2; k++){
+          if(shared_t.carrot_holder_t[k] == person)
+            carrots++;
+        }
+      }
+      if(carrots == 2){printf("%s", "(K)");}
+      else if(carrots == 1){printf("%s", "(C)");}
+      else{printf("   ");
+      printf("|");
     }
   }
 }
@@ -81,7 +94,6 @@ bool valid_move(char c, int x, int y){
   
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 void check_pos(thread_data *runner, int x, int y){
   int i;
   // check if marvin
@@ -95,7 +107,6 @@ void check_pos(thread_data *runner, int x, int y){
     }
   }
 
-
   // check for carrot
   for(i = 0; i < 2; i++)}
     if(shared_t.carrot_t[i][0] == x && shared_t.carrot_t[i][1] == y){
@@ -107,8 +118,7 @@ void check_pos(thread_data *runner, int x, int y){
 
 }
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-int check_perosn(int x, int y){
+int check_person(int x, int y){
   int id;
   char person = shared_t.map.pos[x][y];
   if(person == 'B'){id = 0;}
@@ -133,7 +143,7 @@ void rand_pos(int *x, int *y){
   do{
     *x = getRandom(0, 2) - 1;
     *y = getRandom(0, 2) - 1;
-  while((*y == 0) && (*x == 1));
+  }while((*y == 0) && (*x == 1));
 }
 
 void init_pos(thread_data *thread){
@@ -226,7 +236,7 @@ void runner_signal(thread_data *runner){
     // Update condition
     if(shared_t.condition_t < 3){shared_t.condition_t;}
     else{shared_t.condition_t = 0;}
-
+    print_map();
   }
   pthread_mutex_unlock(&timeTravel_signal_mutex);
 }
