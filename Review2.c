@@ -77,7 +77,7 @@ void print_map(){
       }
       if(carrots == 2){printf("%s", "(K)");}
       else if(carrots == 1){printf("%s", "(C)");}
-      else{printf("   ");
+      else{printf("   ")};
       printf("|");
     }
   }
@@ -271,7 +271,7 @@ void init_data(thread_data *thread){
   shared_t.goal_t = 0;
   shared_t.eliminated_t[0] = shared_t.eliminated_t[1] = shared_t.eliminated_t[2] = 0;
   shared_t.cycle_t = 0;
-  shared_t.carrot_t[0] = shared_t.carrot_t[1] = shared_t.carrot_t[2] = shared_t.carrot_t[3] = 0;
+  shared_t.carrot_t[0][0] = shared_t.carrot_t[0][1] = shared_t.carrot_t[1][0] = shared_t.carrot_t[1][1] = 0;
   shared_t.carrot_holder_t[0] = shared_t.carrot_holder_t[1] = -1;
 
   // Initialize thread data
@@ -320,7 +320,7 @@ void init_data(thread_data *thread){
 
 // API
 void *run_API(void *thread){
-  thread_data *runner = (thread_data)thread;
+  thread_data *runner = (thread_data*)thread;
   setup_time_seed();
 
   while(!runner->copy_goal){
