@@ -50,6 +50,7 @@ void create_map();
 void setup_time_seed(){
   struct timeval time;
   gettimeofday(&time, NULL);
+  //srandom(time(NULL));
   srandom((unsigned int) time.tv_usec);
 }
 
@@ -64,9 +65,9 @@ int getRandom(int rangeLow, int rangeHigh) {
 void print_map(){
   int i, j, k, person, carrots;
   for(i = 0; i < 5; i++){
-    printf("\n-------------------------------------\n|");
+    printf("\n--------------------------------\n|");
     for(j = 0; j < 5; j++){
-      printf("%s", shared_t.map[i][j]);
+      printf("%c", shared_t.map[i][j]);
       person = check_person(i, j);
       if(person != -1){
         carrots = 0;
@@ -81,6 +82,7 @@ void print_map(){
       printf("|");
     }
   }
+  printf("\n--------------------------------\n");
 }
 
 bool valid_move(char c, int x, int y){
@@ -213,6 +215,11 @@ void runner_signal(thread_data *runner){
   // check if it's allowed to run
   if(shared_t.condition_t == runner->condition){
     int x, y;
+    // Print cycle
+    printf("Cycle: %d\n",shared_t.cycle_t);
+    // Print runner name
+    printf("%s is moving.\n", runner->name);
+
     // Check if Marvin
     if(runner->id == 3){
       // Check if cycle % 3
@@ -228,7 +235,7 @@ void runner_signal(thread_data *runner){
       }while(!valid_move(runner->letter, x, y));
       // check if carrot or competition to take/takedown
       check_pos(runner, x, y);
-      update_pos(runner->letter, x, y, runner->x, runner->y);
+      update_pos(runner->letter, x, y, &runner->x, &runner->y);
     }
     // Not Marvin
     else{
@@ -239,7 +246,7 @@ void runner_signal(thread_data *runner){
           x = getRandom(0, 2) - 1;
           y = getRandom(0, 2) - 1;
         }while(!valid_move(runner->letter, x, y));
-        update_pos(runner->letter, x, y, runner->x, runner->y);
+        update_pos(runner->letter, x, y, &runner->x, &runner->y);
         // check for carrot to take
       }
     }
@@ -249,9 +256,6 @@ void runner_signal(thread_data *runner){
       strcpy(shared_t.winner_t, runner->name);
     }
 
-    // Print cycle
-    // Print runner name
-
     // Update goal
     runner->copy_goal = shared_t.goal_t;
     // Update cycle
@@ -259,6 +263,7 @@ void runner_signal(thread_data *runner){
     // Update condition
     if(shared_t.condition_t < 3){shared_t.condition_t;}
     else{shared_t.condition_t = 0;}
+    printf("\n");
     print_map();
   }
   pthread_mutex_unlock(&timeTravel_signal_mutex);
@@ -273,6 +278,7 @@ void init_data(thread_data *thread){
   shared_t.cycle_t = 0;
   shared_t.carrot_t[0][0] = shared_t.carrot_t[0][1] = shared_t.carrot_t[1][0] = shared_t.carrot_t[1][1] = 0;
   shared_t.carrot_holder_t[0] = shared_t.carrot_holder_t[1] = -1;
+  shared_t.mtn_t[0] = shared_t.mtn_t[1] = 0;
 
   // Initialize thread data
   thread[0].thread_id = 0;
@@ -283,6 +289,8 @@ void init_data(thread_data *thread){
   strcpy(thread[0].name, "Bunny");
   thread[0].letter = 'B';
   thread[0].carrot = 0;
+  thread[0].x = 0;
+  thread[0].y = 0;
 
   thread[1].thread_id = 1;
   thread[1].id = 0;
@@ -292,6 +300,8 @@ void init_data(thread_data *thread){
   strcpy(thread[1].name, "Taz");
   thread[1].letter = 'D';
   thread[1].carrot = 0;
+  thread[1].x = 0;
+  thread[1].y = 0;
 
   thread[2].thread_id = 2;
   thread[2].id = 0;
@@ -301,6 +311,8 @@ void init_data(thread_data *thread){
   strcpy(thread[2].name, "Tweety");
   thread[2].letter = 'T';
   thread[2].carrot = 0;
+  thread[2].x = 0;
+  thread[2].y = 0;
 
   thread[3].thread_id = 3;
   thread[3].id = 0;
@@ -310,7 +322,10 @@ void init_data(thread_data *thread){
   strcpy(thread[2].name, "Marvin");
   thread[3].letter = 'M';
   thread[3].carrot = 0;
+  thread[3].x = 0;
+  thread[3].y = 0;
 
+  printf("threads have been created");
   // initialize time seed and random position
   setup_time_seed();
   init_pos(thread);
@@ -333,20 +348,17 @@ void *run_API(void *thread){
 }
 
 // Main
-int main(){
+int main(int argc, char *argv[]){
   int i;
   thread_data thread[4];
   init_data(&thread);
 
-  for(i = 0; i < 4; i++){
-    printf("");
-  }
 
   pthread_mutex_init(&timeTravel_signal_mutex, NULL);
 
   for(i = 0; i < 4; i++){
     thread[i].thread_id = i;
-    phtread_create(&(thread[i].thread_id), NULL, run_API, (void *)(&thread[i]));
+    pthread_create(&(thread[i].thread_id), NULL, run_API, (void *)(&thread[i]));
   }
 
   for(i = 0; i < 4; i++){
@@ -354,8 +366,8 @@ int main(){
   }
 
   pthread_mutex_destroy(&timeTravel_signal_mutex);
-
+  printf("Threads destroyed");
   // Print out winner
-
+  printf("The winner is %s", shared_t.winner_t);
   return 0;
 }
