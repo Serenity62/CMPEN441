@@ -138,7 +138,7 @@ int check_person(int x, int y){
 
 void update_pos(char c, int xn, int yn, int *xo, int *yo){
   // replace old spot with ' '
-  shared_t.map[xo][yo] = ' ';
+  shared_t.map[*xo][*yo] = ' ';
   // replace new spot with c
   shared_t.map[xn][yn] = c;
   // old pos = new pos
@@ -225,7 +225,7 @@ void runner_signal(thread_data *runner){
         // Move
         x = getRandom(0, 2) - 1 + runner->x;
         y = getRandom(0, 2) - 1 + runner->y;
-      }while(!valid_move(runner->letter, x, y);
+      }while(!valid_move(runner->letter, x, y));
       // check if carrot or competition to take/takedown
       check_pos(runner, x, y);
       update_pos(runner->letter, x, y, runner->x, runner->y);
@@ -233,18 +233,18 @@ void runner_signal(thread_data *runner){
     // Not Marvin
     else{
       // Check if terminated
-      if(shared_t.eliminated[runner->id] == 0){
+      if(shared_t.eliminated_t[runner->id] == 0){
         do{
           // Move
           x = getRandom(0, 2) - 1;
           y = getRandom(0, 2) - 1;
-        }while(!valid_move(runner->letter, x, y);
+        }while(!valid_move(runner->letter, x, y));
         update_pos(runner->letter, x, y, runner->x, runner->y);
         // check for carrot to take
       }
     }
     // Check if won
-    if(runner->x == shared_t.mtn_t[0] && runner->y == shared_t.mtn[1] && runner->carrot > 0){
+    if(runner->x == shared_t.mtn_t[0] && runner->y == shared_t.mtn_t[1] && runner->carrot > 0){
       shared_t.goal_t = 1;
       shared_t.winner_t = runner->name;
     }
@@ -264,9 +264,9 @@ void runner_signal(thread_data *runner){
 void init_data(thread_data *thread){
   // Initialize Shared data
   create_map();
-  shared_t.condition_runner = 3;
+  shared_t.condition_t = 3;
   shared_t.goal_t = 0;
-  shared_t.eliminated_t[0] = shared_t.elimiated_t[1] = shared_t.eliminated_t[2] = 0;
+  shared_t.eliminated_t[0] = shared_t.eliminated_t[1] = shared_t.eliminated_t[2] = 0;
   shared_t.cycle_t = 0;
   shared_t.carrot_t[0] = shared_t.carrot_t[1] = shared_t.carrot_t[2] = shared_t.carrot_t[3] = 0;
   shared_t.carrot_holder_t[0] = shared_t.carrot_holder_t[1] = -1;
@@ -335,14 +335,14 @@ int main(){
   thread_data thread[4];
   init_data(&thread);
 
-  for(i = 0; i < 4 i++){
+  for(i = 0; i < 4; i++){
     printf("");
   }
 
   pthread_mutex_init(&timeTravel_signal_mutex, NULL);
 
   for(i = 0; i < 4; i++){
-    thread[i].thread_num = i;
+    thread[i].thread_id = i;
     phtread_crete(&(thread[i].thread_id), NULL, run_API, (void *)(&thread[i]));
   }
 
